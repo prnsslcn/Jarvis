@@ -24,4 +24,13 @@ export class AuthController {
       user: user,
     };
   }
+
+  @Get('profile')
+  @UseGuards(AuthGuard('jwt'))
+  getProfile(@Req() req: Request) {
+    return {
+      message: 'Profile retrieved successfully',
+      user: req.user, // req.user는 JwtStrategy에서 설정한 사용자 정보
+    };
+  }
 }
