@@ -13,7 +13,7 @@ export class AuthService {
   async validateOAuthLogin(profile: {
     email: string;
     name: string;
-    provider: string;
+    provider: 'google' | 'microsoft';
     providerId: string;
   }): Promise<User> {
     const existingUser = await this.usersService.findByProviderId(

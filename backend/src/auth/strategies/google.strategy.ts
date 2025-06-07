@@ -24,10 +24,10 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     refreshToken: string,
     profile: Profile,
   ): Promise<User> {
-    const user = {
+    const user: Omit<User, 'id'> = {
       email: profile?.emails?.[0]?.value ?? '',
       name: `${profile?.name?.givenName ?? ''} ${profile?.name?.familyName ?? ''}`,
-      provider: profile?.provider ?? 'google',
+      provider: 'google',
       providerId: profile?.id ?? '',
     };
 

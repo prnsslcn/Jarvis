@@ -2,10 +2,17 @@ import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
+import { User } from 'src/users/entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('me')
+  getProfile(@Req() req: Request) {
+    return req.user; // JWT로부터 디코딩된 사용자 정보
+  }
 
   // 1️⃣ 로그인 시작 - Google OAuth 로그인 페이지로 리디렉션
   @Get('google')
@@ -21,12 +28,10 @@ export class AuthController {
     @Req() req: Request,
     @Res() res: Response,
   ): Promise<void> {
-    const user = req.user as any; // GoogleStrategy에서 전달된 user 객체
+    const user = req.user as User;
 
-    // JWT 발급
     const { accessToken } = await this.authService.login(user);
 
-    // 클라이언트로 전달 - 여기선 쿼리로 전달 or redirect + 쿠키 등 가능
     res.redirect(`http://localhost:5173/auth/callback?token=${accessToken}`);
   }
 }
