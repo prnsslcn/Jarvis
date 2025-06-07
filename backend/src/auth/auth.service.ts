@@ -1,13 +1,34 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { UsersService } from 'src/users/users.service';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly usersService: UsersService,
+  ) {}
 
-  async login(user: any): Promise<{ accessToken: string }> {
+  async validateOAuthLogin(profile: {
+    email: string;
+    name: string;
+    provider: string;
+    providerId: string;
+  }): Promise<User> {
+    const existingUser = await this.usersService.findByProviderId(
+      profile.providerId,
+    );
+
+    if (existingUser) return existingUser;
+
+    // 새 사용자 등록
+    return await this.usersService.create(profile);
+  }
+
+  async login(user: User): Promise<{ accessToken: string }> {
     const payload = {
-      sub: user.providerId,
+      sub: user.id,
       email: user.email,
       name: user.name,
     };
